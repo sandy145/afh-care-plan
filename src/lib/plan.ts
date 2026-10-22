@@ -16,8 +16,14 @@ export interface Resident {
 export interface Profile {
   id: string;
   full_name: string;
-  role: "admin" | "caregiver";
+  role: "admin" | "caregiver" | null;
+  home_id: string | null;
+}
+
+export interface HomeMembership {
   home_id: string;
+  role: "admin" | "caregiver";
+  name: string;
 }
 
 export interface FieldValue {

@@ -7,12 +7,12 @@ import { fmtDate, fullName, type Resident } from "@/lib/plan";
 export const dynamic = "force-dynamic";
 
 export default async function ArchivedResidentsPage() {
-  const { supabase, profile } = await requireUser();
+  const { supabase } = await requireUser();
   const { data: residents } = await supabase.from("residents").select("*").not("discharge_date", "is", null).order("discharge_date", { ascending: false });
 
   return (
     <main className="min-h-screen flex flex-col max-w-lg mx-auto">
-      <AppHeader title="Archived residents" subtitle="Discharged — kept readable for records" back="/residents" who={profile} />
+      <AppHeader title="Archived residents" subtitle="Discharged — kept readable for records" back="/residents" />
       <ul className="p-5 flex flex-col gap-2.5">
         {((residents ?? []) as Resident[]).map((r) => (
           <li key={r.id} className="bg-white border border-line rounded-2xl p-3.5 flex items-center gap-3">

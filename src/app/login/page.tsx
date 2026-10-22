@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"admin" | "caregiver">("caregiver");
+  const [homeName, setHomeName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -22,7 +22,7 @@ export default function LoginPage() {
     const res =
       mode === "signin"
         ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName, role } } });
+        : await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName, new_home_name: homeName } } });
     setBusy(false);
     if (res.error) return setError(res.error.message);
     if (mode === "signup" && !res.data.session) return setError("Check your email to confirm the account, then sign in.");
@@ -50,15 +50,11 @@ export default function LoginPage() {
               Full name
               <input required value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
             </label>
-            <fieldset className="flex gap-2.5">
-              <legend className="text-sm font-semibold mb-1.5">Role</legend>
-              {(["admin", "caregiver"] as const).map((r) => (
-                <label key={r} className={`flex-1 rounded-xl border p-3 text-sm cursor-pointer ${role === r ? "border-navy bg-blue-50" : "border-line bg-white"}`}>
-                  <input type="radio" name="role" value={r} checked={role === r} onChange={() => setRole(r)} className="mr-2" />
-                  {r === "admin" ? "AFH Admin" : "Caregiver"}
-                </label>
-              ))}
-            </fieldset>
+            <label className="flex flex-col gap-1.5 text-sm font-semibold">
+              Adult Family Home name
+              <input required value={homeName} onChange={(e) => setHomeName(e.target.value)} placeholder="e.g. Maple Grove AFH" className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+              <span className="text-xs text-muted font-normal">Creating an account here registers a new home and makes you its admin. If a caregiver or admin invited you to an existing home, use the link in that invite email instead.</span>
+            </label>
           </>
         )}
         <label className="flex flex-col gap-1.5 text-sm font-semibold">

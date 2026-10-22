@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AppHeader from "@/components/AppHeader";
+import RegisterHomeForm from "@/components/RegisterHomeForm";
 import { requireUser } from "@/lib/auth";
 import { fmtDate, fullName, reviewStatus, type Resident, type Review } from "@/lib/plan";
 
@@ -7,6 +8,18 @@ export const dynamic = "force-dynamic";
 
 export default async function ResidentsPage() {
   const { supabase, profile } = await requireUser();
+
+  if (!profile?.home_id) {
+    return (
+      <main className="min-h-screen flex flex-col max-w-lg mx-auto">
+        <AppHeader title="Register your home" subtitle="One more step" />
+        <div className="p-5">
+          <RegisterHomeForm />
+        </div>
+      </main>
+    );
+  }
+
   const { data: residents } = await supabase.from("residents").select("*").is("discharge_date", null).order("last_name");
   const ids = (residents ?? []).map((r) => r.id);
 
@@ -26,7 +39,7 @@ export default async function ResidentsPage() {
 
   return (
     <main className="min-h-screen flex flex-col max-w-lg mx-auto">
-      <AppHeader title="Residents" subtitle={`${home?.name ?? "Adult Family Home"} · ${rows.length} residents`} who={profile} />
+      <AppHeader title="Residents" subtitle={`${home?.name ?? "Adult Family Home"} · ${rows.length} residents`} />
 
       {due.length > 0 && (
         <div className="mx-5 mt-4 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-3 text-sm text-amber-900">

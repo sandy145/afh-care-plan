@@ -29,7 +29,6 @@ export default async function ResidentPage({ params, searchParams }: { params: P
         title={fullName(plan.resident)}
         subtitle="Negotiated Care Plan · DSHS form"
         back="/residents"
-        who={profile}
         right={
           <Link href={`/residents/${id}/review`} className={`text-xs font-semibold px-2.5 py-2 rounded-full whitespace-nowrap ${status.tone === "bad" ? "bg-red-100 text-red-800" : status.tone === "warn" ? "bg-amber-100 text-amber-800" : "bg-green-100 text-green-800"}`}>
             Review {status.days <= 0 ? "due" : `in ${status.days}d`}

@@ -8,7 +8,8 @@ Keeps a Washington Adult Family Home **Negotiated Care Plan** (DSHS NCP) current
 - **Edit by hand** — same thing without the microphone.
 - **Change log** — every change: old value, new value, who, when, reason, source (voice or by hand), significant flag, plan version. Append-only.
 - **2-week review** — lists everything since the last review, records the review, prints.
-- **Print** — the NCP in the form's layout, changed values marked with the previous text struck through and a dated stamp, plus a **Change Log and Review Record** addendum page with signature lines. "Changed pages only" prints just the pages that need swapping in the binder.
+- **Print** — the NCP in the form's layout, changed values marked with the previous text struck through and a dated stamp, plus a **Change Log and Review Record** addendum page with signature lines. Three scopes: the full plan, changed pages only since the last review, or every change ever recorded (`?history=1`).
+- **Multiple Adult Family Homes** — a user can belong to any number of homes, each with its own residents, plan, and change history. An admin invites others by email from **Users** (the people icon in the header); accepting the invite email adds them to that home. Registering a new account (or using "Register a new home" when you don't yet belong to one) creates a brand-new home and makes you its admin. A switcher in the header appears once you belong to 2+ homes.
 
 ## Stack
 
@@ -29,6 +30,8 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project → Settings → API |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Same page (publishable / anon key) |
 | `ANTHROPIC_API_KEY` | console.anthropic.com. Server-only. Without it, voice notes are saved and transcribed but not mapped — the user picks the section and edits by hand. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Same API settings page (service_role key — keep this one secret, never expose it to the browser). Server-only. Without it, inviting a user by email still records the invite but sends no email. |
+| `NEXT_PUBLIC_SITE_URL` | Optional. Your deployed URL, used to build the invite email's link. Falls back to the request's own origin if unset. |
 
 ### Database
 
@@ -41,9 +44,9 @@ npx tsx scripts/gen-seed-sql.ts > supabase/seed-template.sql
 
 The template itself lives in `src/lib/ncp-template.ts` — 22 sections, 154 fields, matching the DSHS Sample AFH Negotiated Care Plan. Change the form there, re-run the script, and the app, the print view and the AI mapping all follow.
 
-### Users
+### Users and homes
 
-Sign up from the login screen; pick **AFH Admin** or **Caregiver**. The first home in the database is assigned automatically (single-home MVP). Both roles can record notes and confirm changes; every change carries the signed-in user's name.
+Signing up from the login screen registers a brand-new Adult Family Home (you name it) and makes you its admin. To add someone to an *existing* home, an admin sends an invite from **Users**: new addresses get a real Supabase invite email (set a password, land signed in and already a member); an address that already has an account elsewhere is added directly, no email needed. Both roles can record notes and confirm changes; every change carries the signed-in user's name. A user who belongs to more than one home gets a switcher in the header.
 
 Demo logins on the current Supabase project (change these before real use):
 
@@ -52,13 +55,14 @@ Demo logins on the current Supabase project (change these before real use):
 
 ### Deploy
 
-Vercel: import the repo, add the three env vars, deploy. Supabase Auth → URL configuration → add the Vercel URL to redirect URLs.
+Vercel: import the repo, add the env vars above, deploy. Supabase Auth → URL configuration → add the Vercel URL (and `/accept-invite`) to redirect URLs.
 
 ## How data is stored
 
 - `field_values` is append-only: a change closes the old row (`effective_to`) and inserts a new one, so the plan as of any date can be reconstructed.
 - `apply_changes(resident, changes[], voice_note?)` is a Postgres function that does this atomically, writes `change_log`, and bumps `plan_versions`.
-- Row-level security limits every table to the signed-in user's home.
+- `home_memberships` holds every home a user belongs to and their role there; `profiles.home_id`/`role` track only their *currently active* home, switched via `switch_active_home()`. Row-level security resolves "the signed-in user's home" through `my_home_id()`, which only returns a value while a live membership backs it — removing someone from a home (`home_memberships`) revokes their access immediately, independent of their `profiles` row.
+- `home_invites` tracks pending/accepted/revoked email invitations per home.
 - Voice-note transcripts are kept in `voice_notes` with the proposed changes; audio upload is a later phase.
 
 ## PHI
