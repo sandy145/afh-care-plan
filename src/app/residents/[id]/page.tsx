@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import CarePlanSections from "@/components/CarePlanSections";
+import DischargeResidentButton from "@/components/DischargeResidentButton";
 import { requireUser } from "@/lib/auth";
 import { fmtDate, fullName, loadPlan, reviewStatus } from "@/lib/plan";
 
@@ -49,13 +50,17 @@ export default async function ResidentPage({ params, searchParams }: { params: P
           <strong className="text-ink">v</strong>
           {plan.version}
         </span>
-        <span className="ml-auto flex gap-3">
+        <span className="ml-auto flex items-center gap-3">
+          <Link href={`/residents/${id}/notes`} className="text-navy font-semibold">
+            Daily notes
+          </Link>
           <Link href={`/residents/${id}/log`} className="text-navy font-semibold">
             Change log
           </Link>
           <Link href={`/residents/${id}/print`} className="text-navy font-semibold">
             Print
           </Link>
+          <DischargeResidentButton residentId={id} residentName={fullName(plan.resident)} />
         </span>
       </div>
 
