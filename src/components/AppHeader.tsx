@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SignOutButton from "./SignOutButton";
 import HomeSwitcher from "./HomeSwitcher";
+import IdleLock from "./IdleLock";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AppHeader({
@@ -37,6 +38,7 @@ export default async function AppHeader({
 
   return (
     <header className="no-print bg-white border-b border-line px-5 pt-5 pb-3 flex items-center gap-2.5 sticky top-0 z-10">
+      <IdleLock />
       {back && (
         <Link href={back} aria-label="Back" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
           <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f3a5f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

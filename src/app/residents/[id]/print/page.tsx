@@ -11,10 +11,11 @@ const SECTIONS_PER_PAGE = 3;
 export default async function PrintPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ changes?: string; history?: string }> }) {
   const { id } = await params;
   const { changes: changesOnly, history: fullHistory } = await searchParams;
-  const { supabase, profile } = await requireUser();
+  const { supabase, profile, user } = await requireUser();
   const plan = await loadPlan(supabase, id);
   if (!plan) notFound();
   const { data: home } = await supabase.from("homes").select("name").eq("id", profile?.home_id ?? "").maybeSingle();
+  await supabase.from("access_log").insert({ resident_id: id, user_id: user.id, action: "print_plan" });
 
   // Three ways to scope what prints: changes since the last review (default), right after
   // a review the changes it covered, or — with ?history=1 — every change ever recorded.

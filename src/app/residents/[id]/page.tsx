@@ -11,10 +11,14 @@ export const dynamic = "force-dynamic";
 export default async function ResidentPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ s?: string }> }) {
   const { id } = await params;
   const { s } = await searchParams;
-  const { supabase, profile } = await requireUser();
+  const { supabase, profile, user } = await requireUser();
   const plan = await loadPlan(supabase, id);
   if (!plan) notFound();
   const status = reviewStatus(plan.lastReview, plan.resident.original_plan_date);
+
+  // HIPAA requires an audit trail of reads as well as writes — change_log already covers
+  // writes; this covers "who looked at this resident's plan, and when."
+  await supabase.from("access_log").insert({ resident_id: id, user_id: user.id, action: "view_plan" });
 
   const { data: log } = await supabase
     .from("change_log")
