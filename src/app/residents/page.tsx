@@ -53,7 +53,15 @@ export default async function ResidentsPage() {
           </li>
         ))}
       </ul>
-      <p className="px-5 text-xs text-muted">Badge = time until the 14-day review is due.</p>
+      <div className="px-5 flex flex-col gap-3">
+        <Link href="/residents/new" className="h-12 rounded-xl bg-navy text-white font-semibold flex items-center justify-center">
+          + Add resident
+        </Link>
+        <p className="text-xs text-muted">Badge = time until the 14-day review is due.</p>
+        <Link href="/residents/archived" className="text-xs text-navy font-semibold self-start">
+          Discharged / archived residents →
+        </Link>
+      </div>
     </main>
   );
 }
