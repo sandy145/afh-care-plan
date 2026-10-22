@@ -8,19 +8,25 @@ export const dynamic = "force-dynamic";
 
 const SECTIONS_PER_PAGE = 3;
 
-export default async function PrintPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ changes?: string }> }) {
+export default async function PrintPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ changes?: string; history?: string }> }) {
   const { id } = await params;
-  const { changes: changesOnly } = await searchParams;
+  const { changes: changesOnly, history: fullHistory } = await searchParams;
   const { supabase, profile } = await requireUser();
   const plan = await loadPlan(supabase, id);
   if (!plan) notFound();
   const { data: home } = await supabase.from("homes").select("name").eq("id", profile?.home_id ?? "").maybeSingle();
 
-  // Changes since the last review, or — right after a review — the changes that review covered.
+  // Three ways to scope what prints: changes since the last review (default), right after
+  // a review the changes it covered, or — with ?history=1 — every change ever recorded.
   let changes = plan.changesSinceReview;
   let periodStart = plan.lastReview?.reviewed_at ?? plan.resident.original_plan_date;
   let reviewFor = plan.lastReview;
-  if (changes.length === 0 && plan.lastReview) {
+  if (fullHistory) {
+    const { data: cl } = await supabase.from("change_log").select("*, author:profiles!change_log_author_id_fkey(full_name,role)").eq("resident_id", id).order("created_at", { ascending: false });
+    changes = (cl ?? []) as ChangeLogRow[];
+    periodStart = plan.resident.original_plan_date ?? changes[changes.length - 1]?.created_at ?? null;
+    reviewFor = plan.lastReview;
+  } else if (changes.length === 0 && plan.lastReview) {
     const { data: prev } = await supabase.from("reviews").select("reviewed_at").eq("resident_id", id).lt("reviewed_at", plan.lastReview.reviewed_at).order("reviewed_at", { ascending: false }).limit(1);
     const from = prev?.[0]?.reviewed_at ?? "1970-01-01";
     const { data: cl } = await supabase.from("change_log").select("*, author:profiles!change_log_author_id_fkey(full_name,role)").eq("resident_id", id).gt("created_at", from).lte("created_at", plan.lastReview.reviewed_at).order("created_at", { ascending: false });
@@ -44,14 +50,24 @@ export default async function PrintPage({ params, searchParams }: { params: Prom
 
   return (
     <main className="bg-gray-200 print:bg-white min-h-screen">
-      <div className="no-print max-w-[8.5in] mx-auto p-4 flex items-center gap-3 text-sm">
+      <div className="no-print max-w-[8.5in] mx-auto p-4 flex flex-wrap items-center gap-3 text-sm">
         <a href={`/residents/${id}`} className="text-navy font-semibold">
           ← Back
         </a>
-        <span className="text-muted">{changesOnly ? "Changed pages only + change log" : "Full plan + change log"}</span>
-        <a href={changesOnly ? `/residents/${id}/print` : `/residents/${id}/print?changes=1`} className="text-navy underline">
-          {changesOnly ? "Print full plan instead" : "Print changed pages only"}
-        </a>
+        <span className="text-muted">
+          {fullHistory ? "Full change history" : changesOnly ? "Changed pages only + change log" : "Full plan + change log"}
+        </span>
+        <span className="ml-auto flex flex-wrap gap-3">
+          <a href={`/residents/${id}/print`} className={`underline ${!changesOnly && !fullHistory ? "pointer-events-none text-ink font-semibold no-underline" : "text-navy"}`}>
+            Full plan
+          </a>
+          <a href={`/residents/${id}/print?changes=1`} className={`underline ${changesOnly && !fullHistory ? "pointer-events-none text-ink font-semibold no-underline" : "text-navy"}`}>
+            Changed pages only
+          </a>
+          <a href={`/residents/${id}/print?history=1`} className={`underline ${fullHistory ? "pointer-events-none text-ink font-semibold no-underline" : "text-navy"}`}>
+            All updates ever recorded
+          </a>
+        </span>
         <PrintButton />
       </div>
 
@@ -109,7 +125,9 @@ export default async function PrintPage({ params, searchParams }: { params: Prom
                     {col(3).map((f) => (
                       <Field key={f.id} fid={f.id} bold />
                     ))}
-                    {!changedSections.has(s.id) && changes.length > 0 && <div className="text-[8px] italic text-gray-500">No change since last review ({fmtDate(periodStart)}).</div>}
+                    {!changedSections.has(s.id) && changes.length > 0 && (
+                      <div className="text-[8px] italic text-gray-500">{fullHistory ? "No change recorded." : `No change since last review (${fmtDate(periodStart)}).`}</div>
+                    )}
                   </div>
                 </div>
               );
@@ -117,7 +135,7 @@ export default async function PrintPage({ params, searchParams }: { params: Prom
           </div>
           {secs.some((s) => changedSections.has(s.id)) && (
             <div className="mt-2 border border-red-800 bg-red-50 p-1.5 text-[9px]">
-              <div className="font-bold text-red-800">CHANGES ON THIS PAGE SINCE LAST REVIEW ({fmtDate(periodStart)})</div>
+              <div className="font-bold text-red-800">{fullHistory ? "ALL CHANGES RECORDED ON THIS PAGE" : `CHANGES ON THIS PAGE SINCE LAST REVIEW (${fmtDate(periodStart)})`}</div>
               {changes
                 .filter((c) => secs.some((s) => c.field_id.startsWith(s.id + ".")))
                 .map((c, i) => (
@@ -135,7 +153,9 @@ export default async function PrintPage({ params, searchParams }: { params: Prom
 
       {/* Change log + review record addendum */}
       <Page name={name} page={totalPages} total={totalPages} meta={footerMeta}>
-        <div className="text-center font-bold text-[10.5px] mb-2">CARE PLAN CHANGE LOG AND REVIEW RECORD — ADDENDUM</div>
+        <div className="text-center font-bold text-[10.5px] mb-2">
+          CARE PLAN CHANGE LOG {fullHistory ? "— FULL HISTORY" : "AND REVIEW RECORD — ADDENDUM"}
+        </div>
         <div className="grid grid-cols-4 border-[1.5px] border-black text-[9px]">
           <div className="p-1 border-r border-black">
             <b>RESIDENT:</b> {name}
@@ -144,20 +164,20 @@ export default async function PrintPage({ params, searchParams }: { params: Prom
             <b>PROVIDER:</b> {home?.name ?? ""}
           </div>
           <div className="p-1 border-r border-black">
-            <b>REVIEW PERIOD:</b> {fmtDate(periodStart)} – {fmtDate(reviewFor?.reviewed_at ?? new Date().toISOString())}
+            <b>{fullHistory ? "SINCE" : "REVIEW PERIOD"}:</b> {fmtDate(periodStart)} – {fullHistory ? "today" : fmtDate(reviewFor?.reviewed_at ?? new Date().toISOString())}
           </div>
           <div className="p-1">
             <b>PLAN VERSION:</b> {plan.version}
           </div>
         </div>
-        <div className="font-bold mt-2 mb-1">CHANGES SINCE LAST REVIEW</div>
+        <div className="font-bold mt-2 mb-1">{fullHistory ? `ALL CHANGES RECORDED (${changes.length})` : "CHANGES SINCE LAST REVIEW"}</div>
         <div className="grid border-[1.5px] border-black text-[8.5px]" style={{ gridTemplateColumns: "0.85in 1.25in 1.2in 1fr 0.9in 1.1in" }}>
           {["DATE / TIME", "SECTION · FIELD", "PREVIOUS", "NEW", "BY", "SOURCE / REASON"].map((h, i) => (
             <div key={h} className={`p-1 font-bold bg-gray-100 border-b-[1.5px] border-black ${i < 5 ? "border-r" : ""}`}>
               {h}
             </div>
           ))}
-          {changes.length === 0 && <div className="p-1 col-span-6 text-gray-600">No changes in this period.</div>}
+          {changes.length === 0 && <div className="p-1 col-span-6 text-gray-600">No changes recorded.</div>}
           {changes.map((c, i) => {
             const last = i === changes.length - 1;
             const cell = `p-1 ${last ? "" : "border-b border-black"}`;
