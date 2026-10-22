@@ -65,6 +65,19 @@ Vercel: import the repo, add the env vars above, deploy. Supabase Auth → URL c
 - `home_invites` tracks pending/accepted/revoked email invitations per home.
 - Voice-note transcripts are kept in `voice_notes` with the proposed changes; audio upload is a later phase.
 
-## PHI
+## PHI and HIPAA
 
-Resident records are protected health information. Keep the Supabase project private, use real accounts (not the demo logins) for real residents, and sign a BAA with your hosting and AI providers before entering real data.
+Resident records are protected health information. No codebase is "HIPAA compliant" by itself — that also takes signed Business Associate Agreements, a retention/breach-notification policy, and staff training, none of which this README can provide. What the app itself does:
+
+- **Encryption**: in transit (HTTPS/TLS everywhere) and at rest (Supabase's default Postgres encryption).
+- **Access control**: per-user login, no shared accounts; Postgres row-level security scopes every table to the signed-in user's home, enforced in the database itself, not just the app layer.
+- **Auto-lock**: sessions sign out after 15 minutes idle (`src/components/IdleLock.tsx`) so an unattended device doesn't leave a plan open.
+- **Audit trail**: `change_log` records every write (old value, new value, who, when); `access_log` records reads — who viewed or printed a resident's plan, and when (admins can see it on a resident's Change Log page).
+- **Security headers**: HSTS, a restrictive CSP, clickjacking (`X-Frame-Options: DENY`) and MIME-sniffing protection, and a `Permissions-Policy` that allows only the microphone (for voice notes) and blocks camera/geolocation/etc. (`next.config.ts`).
+- **Least privilege**: the one server-only secret with elevated access (`SUPABASE_SERVICE_ROLE_KEY`) is used solely for the invite flow and never reaches the browser; the Supabase security advisor was run after every schema change and any finding it raised was fixed before shipping (see the multi-home PR for a real example it caught).
+
+Still needed before handling real resident data, beyond this codebase:
+- Sign a BAA with Supabase and with Anthropic (if `ANTHROPIC_API_KEY` is set) before entering real PHI.
+- Decide and document a retention period for discharged residents' records and audio, per WA AFH rules.
+- Turn on Supabase Auth's "leaked password protection" (Dashboard → Authentication → Policies) — flagged by Supabase's own advisor; not available through the tooling used to build this.
+- A formal access/breach-notification policy and staff training — organizational, not technical.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -13,6 +13,11 @@ export default function LoginPage() {
   const [homeName, setHomeName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("timeout") === "1") setTimedOut(true);
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -42,6 +47,8 @@ export default function LoginPage() {
         <h1 className="mt-4 text-2xl font-bold">Care Plan</h1>
         <p className="text-muted text-sm mt-1">Adult Family Home — Negotiated Care Plan</p>
       </div>
+
+      {timedOut && <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">You were signed out after a period of inactivity, to keep resident records secure. Sign back in to continue.</p>}
 
       <form onSubmit={submit} className="flex flex-col gap-4">
         {mode === "signup" && (

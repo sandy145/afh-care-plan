@@ -8,11 +8,15 @@ export const dynamic = "force-dynamic";
 
 export default async function LogPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase } = await requireUser();
+  const { supabase, profile } = await requireUser();
   const { data: resident } = await supabase.from("residents").select("first_name,last_name").eq("id", id).single();
   if (!resident) notFound();
   const { data: log } = await supabase.from("change_log").select("*, author:profiles!change_log_author_id_fkey(full_name,role)").eq("resident_id", id).order("created_at", { ascending: false });
   const { data: reviews } = await supabase.from("reviews").select("reviewed_at,plan_version,changes_count,reviewer:profiles!reviews_reviewer_id_fkey(full_name)").eq("resident_id", id).order("reviewed_at", { ascending: false });
+  const { data: access } =
+    profile?.role === "admin"
+      ? await supabase.from("access_log").select("action,created_at,viewer:profiles(full_name)").eq("resident_id", id).order("created_at", { ascending: false }).limit(20)
+      : { data: null };
   const show = (fid: string, v: string | null) => (v == null ? "(blank)" : fid.endsWith(".level") ? ASSIST_LABELS[v] ?? v : v);
 
   return (
@@ -50,6 +54,19 @@ export default async function LogPage({ params }: { params: Promise<{ id: string
           ))}
           {(log ?? []).length === 0 && <div className="p-3 text-sm text-muted">No changes yet.</div>}
         </div>
+
+        {access && access.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">Access log · admins only</div>
+            <div className="bg-white border border-line rounded-xl p-3 text-xs flex flex-col gap-1">
+              {access.map((a, i) => (
+                <div key={i}>
+                  {fmtDateTime(a.created_at)} · {a.action === "print_plan" ? "Printed" : "Viewed"} · {(a.viewer as unknown as { full_name: string } | null)?.full_name ?? "—"}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
