@@ -8,6 +8,7 @@ export default function SignOutButton() {
     <button
       type="button"
       aria-label="Sign out"
+      title="Sign out"
       onClick={async () => {
         await createClient().auth.signOut();
         router.push("/login");

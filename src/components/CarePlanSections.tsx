@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ASSIST_LABELS, NCP_TEMPLATE, type TemplateField } from "@/lib/ncp-template";
+import { ASSIST_LABELS, NCP_TEMPLATE, type TemplateField, type TemplateSection } from "@/lib/ncp-template";
 import { fmtDateTime, type ChangeLogRow, type FieldValue } from "@/lib/plan";
 import { friendlyError } from "@/lib/friendlyError";
 
@@ -14,6 +14,10 @@ type Props = {
   initialSection?: string;
   canEdit: boolean;
 };
+
+function sectionHasContent(s: TemplateSection, values: Record<string, FieldValue>) {
+  return s.fields.some((f) => !!values[f.id]?.value);
+}
 
 export default function CarePlanSections({ residentId, values, log, initialSection, canEdit }: Props) {
   const router = useRouter();
@@ -28,6 +32,13 @@ export default function CarePlanSections({ residentId, values, log, initialSecti
   const sectionLog = useMemo(() => log.filter((l) => l.field_id.startsWith(active + ".")), [log, active]);
   const lastChange = sectionLog[0];
   const prevValue = (fieldId: string) => sectionLog.find((l) => l.field_id === fieldId && l.old_value);
+
+  const startedCount = useMemo(() => NCP_TEMPLATE.filter((s) => sectionHasContent(s, values)).length, [values]);
+
+  function goTo(id: string) {
+    setActive(id);
+    setEditing(false);
+  }
 
   function startEdit() {
     const d: Record<string, string> = {};
@@ -54,31 +65,49 @@ export default function CarePlanSections({ residentId, values, log, initialSecti
   const col = (n: 1 | 2 | 3) => section.fields.filter((f) => f.column === n);
 
   return (
-    <div className="flex flex-col flex-1">
-      <nav className="no-print bg-white border-b border-line px-3 py-2 overflow-x-auto">
-        <div className="text-[11px] font-semibold text-muted uppercase tracking-wide px-1 mb-1.5">NCP sections · same order as the form</div>
+    <div className="flex flex-col flex-1 lg:flex-row lg:items-start lg:gap-0">
+      {/* Mobile / narrow screens: horizontal scrolling pills */}
+      <nav className="no-print lg:hidden bg-white border-b border-line px-3 py-2 overflow-x-auto">
+        <div className="text-[11px] font-semibold text-muted uppercase tracking-wide px-1 mb-1.5">Care plan sections · {startedCount} of {NCP_TEMPLATE.length} started</div>
         <div className="flex gap-2 w-max">
           {NCP_TEMPLATE.map((s) => (
             <button
               key={s.id}
               type="button"
-              onClick={() => {
-                setActive(s.id);
-                setEditing(false);
-              }}
-              className={`h-9 px-3 rounded-full border text-[13px] whitespace-nowrap ${s.id === active ? "bg-navy border-navy text-white font-semibold" : "bg-white border-gray-300"}`}
+              onClick={() => goTo(s.id)}
+              className={`h-9 pl-2.5 pr-3 rounded-full border text-[13px] whitespace-nowrap flex items-center gap-1.5 ${s.id === active ? "bg-navy border-navy text-white font-semibold" : "bg-white border-gray-300"}`}
             >
+              <SectionDot filled={sectionHasContent(s, values)} active={s.id === active} />
               {titleCase(s.title)}
             </button>
           ))}
         </div>
       </nav>
 
-      <section className="p-5 flex flex-col gap-3">
+      {/* Wide screens: persistent sidebar, nothing requires horizontal scrolling to discover */}
+      <aside className="no-print hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 lg:border-r lg:border-line lg:bg-white lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+        <div className="px-4 pt-4 pb-1 text-[11px] font-semibold text-muted uppercase tracking-wide">Care plan sections</div>
+        <div className="px-4 pb-3 text-xs text-muted">{startedCount} of {NCP_TEMPLATE.length} started</div>
+        <div className="flex flex-col pb-3">
+          {NCP_TEMPLATE.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => goTo(s.id)}
+              className={`text-left px-4 py-2 text-sm flex items-center gap-2 border-l-[3px] ${s.id === active ? "border-navy bg-blue-50 text-navy font-semibold" : "border-transparent text-ink hover:bg-gray-50"}`}
+            >
+              <SectionDot filled={sectionHasContent(s, values)} active={s.id === active} />
+              <span className="truncate">{titleCase(s.title)}</span>
+            </button>
+          ))}
+        </div>
+      </aside>
+
+      <section className="flex-1 min-w-0 p-5 flex flex-col gap-3">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-lg font-bold">{section.title}</h2>
           {lastChange && (
-            <span className="text-xs text-muted">
+            <span className="text-xs text-muted whitespace-nowrap">
               Changed {fmtDateTime(lastChange.created_at)} by {lastChange.author?.full_name ?? "—"}
             </span>
           )}
@@ -119,22 +148,26 @@ export default function CarePlanSections({ residentId, values, log, initialSecti
           </div>
         )}
 
-        <div className="flex flex-col gap-1.5">
-          <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">Change log · this section</div>
-          <div className="bg-white border border-line rounded-xl px-3 py-2.5 text-xs flex flex-col gap-2">
-            {sectionLog.length === 0 && <div className="text-muted">No changes recorded yet.</div>}
-            {sectionLog.slice(0, 8).map((l) => (
-              <div key={l.id} className="flex gap-2">
-                <span className="text-muted w-24 shrink-0">{fmtDateTime(l.created_at)}</span>
-                <span className="min-w-0">
-                  <span className="text-muted">{labelOf(l.field_id)}:</span> {l.old_value ? <s className="text-gray-500">{short(l.old_value)}</s> : "(blank)"} → <strong>{short(l.new_value)}</strong> · {l.author?.full_name ?? "—"}
-                  {l.reason ? ` · ${l.reason}` : ""}
-                  {l.voice_note_id ? " · voice" : ""}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        {sectionLog.length > 0 && (
+          <details className="no-print group">
+            <summary className="list-none cursor-pointer flex items-center gap-1.5 text-[11px] font-semibold text-muted uppercase tracking-wide select-none">
+              <ChevronIcon />
+              Change history for this section ({sectionLog.length})
+            </summary>
+            <div className="bg-white border border-line rounded-xl px-3 py-2.5 mt-1.5 text-xs flex flex-col gap-2">
+              {sectionLog.slice(0, 8).map((l) => (
+                <div key={l.id} className="flex gap-2">
+                  <span className="text-muted w-24 shrink-0">{fmtDateTime(l.created_at)}</span>
+                  <span className="min-w-0">
+                    <span className="text-muted">{labelOf(l.field_id)}:</span> {l.old_value ? <s className="text-gray-500">{short(l.old_value)}</s> : "(blank)"} → <strong>{short(l.new_value)}</strong> · {l.author?.full_name ?? "—"}
+                    {l.reason ? ` · ${l.reason}` : ""}
+                    {l.voice_note_id ? " · voice" : ""}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
       </section>
     </div>
   );
@@ -159,47 +192,56 @@ function Column({
   prevValue: (id: string) => ChangeLogRow | undefined;
   hasAssist?: boolean;
 }) {
+  const visibleFields = fields.filter((f) => !(f.type === "assist" && hasAssist === false));
+  // The assist-level checkbox grid is itself worth showing even with nothing selected,
+  // so only collapse a column when it has no assist field and no field has a value.
+  const hasAssistField = visibleFields.some((f) => f.type === "assist");
+  const allEmpty = !editing && !hasAssistField && visibleFields.every((f) => !values[f.id]?.value);
+
   return (
     <div className="bg-white border border-line rounded-2xl p-3.5 flex flex-col gap-3">
       <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">{title}</div>
-      {fields.map((f) => {
-        const cur = values[f.id]?.value ?? "";
-        const prev = prevValue(f.id);
-        if (f.type === "assist" && hasAssist === false) return null;
-        return (
-          <div key={f.id} className="flex flex-col gap-1">
-            {f.column === 1 && <div className="text-xs text-muted">{f.label}</div>}
-            {editing ? (
-              f.type === "assist" ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(ASSIST_LABELS).map(([k, lbl]) => (
-                    <button key={k} type="button" onClick={() => setDraft({ ...draft, [f.id]: k })} className={`text-xs px-2.5 py-1.5 rounded-md border ${draft[f.id] === k ? "bg-blue-100 border-navy text-navy font-semibold" : "border-gray-300"}`}>
-                      {lbl}
-                    </button>
-                  ))}
-                </div>
-              ) : f.type === "yesno" ? (
-                <div className="flex gap-1.5">
-                  {["Yes", "No"].map((k) => (
-                    <button key={k} type="button" onClick={() => setDraft({ ...draft, [f.id]: k })} className={`text-xs px-3 py-1.5 rounded-md border ${draft[f.id] === k ? "bg-blue-100 border-navy text-navy font-semibold" : "border-gray-300"}`}>
-                      {k}
-                    </button>
-                  ))}
-                </div>
+      {allEmpty ? (
+        <p className="text-sm text-gray-400 italic py-1">Nothing recorded yet.</p>
+      ) : (
+        visibleFields.map((f) => {
+          const cur = values[f.id]?.value ?? "";
+          const prev = prevValue(f.id);
+          return (
+            <div key={f.id} className="flex flex-col gap-1">
+              {f.column === 1 && <div className="text-xs text-muted">{f.label}</div>}
+              {editing ? (
+                f.type === "assist" ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {Object.entries(ASSIST_LABELS).map(([k, lbl]) => (
+                      <button key={k} type="button" onClick={() => setDraft({ ...draft, [f.id]: k })} className={`text-xs px-2.5 py-1.5 rounded-md border ${draft[f.id] === k ? "bg-blue-100 border-navy text-navy font-semibold" : "border-gray-300"}`}>
+                        {lbl}
+                      </button>
+                    ))}
+                  </div>
+                ) : f.type === "yesno" ? (
+                  <div className="flex gap-1.5">
+                    {["Yes", "No"].map((k) => (
+                      <button key={k} type="button" onClick={() => setDraft({ ...draft, [f.id]: k })} className={`text-xs px-3 py-1.5 rounded-md border ${draft[f.id] === k ? "bg-blue-100 border-navy text-navy font-semibold" : "border-gray-300"}`}>
+                        {k}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <textarea value={draft[f.id] ?? ""} onChange={(e) => setDraft({ ...draft, [f.id]: e.target.value })} rows={f.column === 1 ? 2 : 4} className="text-sm p-2 rounded-lg border border-gray-300" />
+                )
               ) : (
-                <textarea value={draft[f.id] ?? ""} onChange={(e) => setDraft({ ...draft, [f.id]: e.target.value })} rows={f.column === 1 ? 2 : 4} className="text-sm p-2 rounded-lg border border-gray-300" />
-              )
-            ) : (
-              <>
-                <div className={`text-[15px] ${f.column === 3 ? "font-semibold" : ""}`}>{f.type === "assist" ? renderAssist(cur) : cur || <span className="text-gray-400">—</span>}</div>
-                {prev && prev.new_value === (cur || null) && (
-                  <div className="text-xs text-red-800 line-through">{f.type === "assist" ? ASSIST_LABELS[prev.old_value ?? ""] ?? prev.old_value : prev.old_value}</div>
-                )}
-              </>
-            )}
-          </div>
-        );
-      })}
+                <>
+                  <div className={`text-[15px] ${f.column === 3 ? "font-semibold" : ""}`}>{f.type === "assist" ? renderAssist(cur) : cur || <span className="text-gray-400">—</span>}</div>
+                  {prev && prev.new_value === (cur || null) && (
+                    <div className="text-xs text-red-800 line-through">{f.type === "assist" ? ASSIST_LABELS[prev.old_value ?? ""] ?? prev.old_value : prev.old_value}</div>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })
+      )}
     </div>
   );
 }
@@ -233,12 +275,23 @@ function titleCase(s: string) {
     .replace("Toileting/Continence Issues", "Toileting/Continence")
     .replace("Other Issues/Concerns/Problems", "Other Issues");
 }
+function SectionDot({ filled, active }: { filled: boolean; active: boolean }) {
+  if (active) return <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />;
+  return <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${filled ? "bg-green-500" : "bg-gray-300"}`} />;
+}
 function MicIcon() {
   return (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="9" y="3" width="6" height="11" rx="3" />
       <path d="M5 11a7 7 0 0 0 14 0" />
       <path d="M12 18v3" />
+    </svg>
+  );
+}
+function ChevronIcon() {
+  return (
+    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-open:rotate-90 shrink-0">
+      <path d="M9 18l6-6-6-6" />
     </svg>
   );
 }
