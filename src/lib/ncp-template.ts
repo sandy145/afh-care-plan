@@ -330,6 +330,41 @@ export const ASSIST_LABELS: Record<string, string> = {
   dependent: "Totally Dependent",
 };
 
+export const ASSIST_DESCRIPTIONS: Record<string, string> = {
+  independent: "No caregiver assistance needed",
+  supervision: "Needs supervision or cueing",
+  assistance: "Needs caregiver assistance",
+  dependent: "Fully dependent on caregiver",
+};
+
+// One plain-language sentence per section, shown as a subtitle under the section
+// heading so a caregiver can tell what it covers at a glance. Display-only — never
+// printed, never part of the form itself.
+export const SECTION_DESCRIPTIONS: Record<string, string> = {
+  info: "Contact details, medical history, and emergency information for this resident.",
+  communication: "How the resident communicates, and any speech, hearing, or vision needs.",
+  medications: "Who manages medications, and how they're administered.",
+  treatment: "Health conditions to monitor, therapies, and any nurse-delegated treatments.",
+  psych: "Behavioral health, cognitive status, and non-medication interventions.",
+  left_alone: "Whether the resident can be left alone, and what supervision is needed.",
+  precautions: "Infection-control precautions caregivers should follow.",
+  mobility: "How the resident gets around, fall risk, and mobility equipment.",
+  bed_mobility: "Safe transfer assistance, positioning, caregiver responsibilities and resident preferences.",
+  eating: "Diet, allergies, and assistance needed at mealtimes.",
+  toileting: "Bladder and bowel continence needs and skin care.",
+  dressing: "Assistance needed getting dressed, and clothing preferences.",
+  hygiene: "Oral care and other personal hygiene routines.",
+  bathing: "How often and how the resident bathes, and assistance needed.",
+  body_care: "Foot and skin care, and any nurse-delegated treatments.",
+  finances: "Who manages the resident's money and financial records.",
+  shopping: "Shopping needs and transportation arrangements.",
+  transportation: "Getting to medical appointments and other trips.",
+  activities: "Interests, relationships, and social or religious activities.",
+  smoking: "Smoking status and related safety precautions.",
+  case_management: "Who the resident's case manager is, and when to contact them.",
+  other: "Anything else about this resident's care that doesn't fit elsewhere.",
+};
+
 export function sectionOf(fieldId: string) {
   return NCP_TEMPLATE.find((s) => s.id === fieldId.split(".")[0]);
 }
