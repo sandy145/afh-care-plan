@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { friendlyError } from "@/lib/friendlyError";
 
 export default function RegisterHomeForm() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function RegisterHomeForm() {
     const res = await fetch("/api/homes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
     const data = await res.json();
     setBusy(false);
-    if (!res.ok) return setError(data.error ?? "Could not register this home");
+    if (!res.ok) return setError(friendlyError(data.error ?? "Could not register this home"));
     router.push("/residents");
     router.refresh();
   }

@@ -17,10 +17,18 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  // /accept-invite: the invite link's session token arrives in the URL hash fragment,
-  // which never reaches the server, so this request looks unauthenticated here even
-  // though the client-side Supabase JS is about to establish a session from it.
-  const isPublic = path.startsWith("/login") || path.startsWith("/accept-invite") || path.startsWith("/api/") || path.startsWith("/_next") || path === "/favicon.ico";
+  // /accept-invite, /confirmed, /reset-password: each link's session token arrives in
+  // the URL hash fragment, which never reaches the server, so these requests look
+  // unauthenticated here even though client-side Supabase JS is about to establish a
+  // session from it.
+  const isPublic =
+    path.startsWith("/login") ||
+    path.startsWith("/accept-invite") ||
+    path.startsWith("/confirmed") ||
+    path.startsWith("/reset-password") ||
+    path.startsWith("/api/") ||
+    path.startsWith("/_next") ||
+    path === "/favicon.ico";
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

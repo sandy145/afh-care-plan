@@ -51,7 +51,7 @@ export default async function AppHeader({
         {subtitle && <div className="text-xs text-muted truncate">{subtitle}</div>}
       </div>
       {right}
-      {who && (
+      {user && (
         <div className="flex items-center gap-2">
           {homes.length > 1 && <HomeSwitcher homes={homes} activeHomeId={activeHomeId} />}
           {isAdmin && (
@@ -64,9 +64,11 @@ export default async function AppHeader({
               </svg>
             </Link>
           )}
-          <span className="text-xs text-muted bg-gray-100 px-2.5 py-1.5 rounded-full whitespace-nowrap">
-            {who.full_name.split(" ")[0]} · {who.role === "admin" ? "Admin" : "Caregiver"}
-          </span>
+          {who && (
+            <span className="text-xs text-muted bg-gray-100 px-2.5 py-1.5 rounded-full whitespace-nowrap">
+              {who.full_name.split(" ")[0]} · {who.role === "admin" ? "Admin" : "Caregiver"}
+            </span>
+          )}
           <SignOutButton />
         </div>
       )}
