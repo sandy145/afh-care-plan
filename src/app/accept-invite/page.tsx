@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { friendlyError } from "@/lib/friendlyError";
 
 export default function AcceptInvitePage() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function AcceptInvitePage() {
     setError(null);
     const { error } = await createClient().auth.updateUser({ password });
     setBusy(false);
-    if (error) return setError(error.message);
+    if (error) return setError(friendlyError(error.message));
     router.push("/residents");
     router.refresh();
   }

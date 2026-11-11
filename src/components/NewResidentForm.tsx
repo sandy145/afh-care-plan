@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { friendlyError } from "@/lib/friendlyError";
 
 export default function NewResidentForm() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function NewResidentForm() {
     });
     const data = await res.json();
     setBusy(false);
-    if (!res.ok) return setError(data.error ?? "Could not add resident");
+    if (!res.ok) return setError(friendlyError(data.error ?? "Could not add resident"));
     router.push(`/residents/${data.id}`);
     router.refresh();
   }

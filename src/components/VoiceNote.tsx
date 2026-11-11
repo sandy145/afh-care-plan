@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ASSIST_LABELS, fieldOf, sectionOf } from "@/lib/ncp-template";
+import { friendlyError } from "@/lib/friendlyError";
 
 type Proposed = { field_id: string; new_value: string; reason: string; significant: boolean };
 type Decision = "confirm" | "skip";
@@ -71,7 +72,7 @@ export default function VoiceNote({ residentId, sectionHint, authorName }: { res
     const res = await fetch("/api/voice-map", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ residentId, transcript, sectionHint }) });
     const data = await res.json();
     setBusy(false);
-    if (!res.ok) return setError(data.error ?? "Could not process the note");
+    if (!res.ok) return setError(friendlyError(data.error ?? "Could not process the note"));
     setNoteId(data.noteId);
     setChanges(data.changes ?? []);
     setCurrent(data.current ?? {});
@@ -92,7 +93,7 @@ export default function VoiceNote({ residentId, sectionHint, authorName }: { res
     }
     const res = await fetch("/api/apply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ residentId, changes: toApply, voiceNoteId: noteId }) });
     setBusy(false);
-    if (!res.ok) return setError((await res.json()).error ?? "Could not apply");
+    if (!res.ok) return setError(friendlyError((await res.json()).error ?? "Could not apply"));
     router.push(`/residents/${residentId}?s=${toApply[0].field_id.split(".")[0]}`);
     router.refresh();
   }
@@ -127,7 +128,9 @@ export default function VoiceNote({ residentId, sectionHint, authorName }: { res
               Saved as a daily note (not a plan change): <em>{dailyNote}</em>
             </p>
           )}
-          <div className="text-sm font-semibold">{changes.length} proposed change{changes.length === 1 ? "" : "s"} to the care plan</div>
+          <div className="text-sm font-semibold">
+            {changes.length === 0 ? "Nothing in the care plan needs to change from this note." : `${changes.length} proposed change${changes.length === 1 ? "" : "s"} to the care plan`}
+          </div>
           {changes.map((c, i) => {
             const sec = sectionOf(c.field_id);
             const f = fieldOf(c.field_id);

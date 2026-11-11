@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ASSIST_LABELS, NCP_TEMPLATE, type TemplateField } from "@/lib/ncp-template";
 import { fmtDateTime, type ChangeLogRow, type FieldValue } from "@/lib/plan";
+import { friendlyError } from "@/lib/friendlyError";
 
 type Props = {
   residentId: string;
@@ -45,7 +46,7 @@ export default function CarePlanSections({ residentId, values, log, initialSecti
     setError(null);
     const res = await fetch("/api/apply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ residentId, changes }) });
     setBusy(false);
-    if (!res.ok) return setError((await res.json()).error ?? "Could not save");
+    if (!res.ok) return setError(friendlyError((await res.json()).error ?? "Could not save"));
     setEditing(false);
     router.refresh();
   }

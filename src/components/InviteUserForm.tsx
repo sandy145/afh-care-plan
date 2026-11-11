@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { friendlyError } from "@/lib/friendlyError";
 
 export default function InviteUserForm() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function InviteUserForm() {
     const res = await fetch("/api/homes/invite", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, role }) });
     const data = await res.json();
     setBusy(false);
-    if (!res.ok) return setError(data.error ?? "Could not send invite");
+    if (!res.ok) return setError(friendlyError(data.error ?? "Could not send invite"));
     setMessage(data.message ?? "Invite sent.");
     setEmail("");
     router.refresh();
