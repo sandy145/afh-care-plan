@@ -40,7 +40,7 @@ export default async function AppHeader({
     <header className="no-print bg-white border-b border-line px-5 pt-5 pb-3 flex items-center gap-2.5 sticky top-0 z-10">
       <IdleLock />
       {back && (
-        <Link href={back} aria-label="Back" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+        <Link href={back} aria-label="Back" title="Back" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
           <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f3a5f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 18l-6-6 6-6" />
           </svg>
@@ -55,7 +55,7 @@ export default async function AppHeader({
         <div className="flex items-center gap-2">
           {homes.length > 1 && <HomeSwitcher homes={homes} activeHomeId={activeHomeId} />}
           {isAdmin && (
-            <Link href="/home/users" aria-label="Manage users" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+            <Link href="/home/users" aria-label="Manage users" title="Manage users" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
               <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5b626e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                 <circle cx="9" cy="7" r="4" />
