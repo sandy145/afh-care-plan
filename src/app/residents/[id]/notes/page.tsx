@@ -24,7 +24,7 @@ export default async function DailyNotesPage({ params }: { params: Promise<{ id:
       <AppHeader title="Daily notes" subtitle={fullName(resident)} back={`/residents/${id}`} />
       <div className="p-5 flex flex-col gap-4">
         <p className="text-xs text-muted">Observations from voice notes that didn&apos;t change the care plan (e.g. &quot;ate well today&quot;). These don&apos;t appear in the change log or on the printed plan.</p>
-        <div className="bg-white border border-line rounded-2xl divide-y divide-gray-100">
+        <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] divide-y divide-gray-100">
           {((notes ?? []) as unknown as DailyNoteRow[]).map((n) => (
             <div key={n.id} className="p-3 text-sm flex flex-col gap-0.5">
               <div>{n.text}</div>

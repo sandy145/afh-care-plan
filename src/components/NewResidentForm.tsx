@@ -40,27 +40,27 @@ export default function NewResidentForm() {
     <form onSubmit={submit} className="p-5 flex flex-col gap-4">
       <label className="flex flex-col gap-1.5 text-sm font-semibold">
         First name
-        <input required value={firstName} onChange={(e) => setFirstName(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+        <input required value={firstName} onChange={(e) => setFirstName(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-semibold">
         Last name
-        <input required value={lastName} onChange={(e) => setLastName(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+        <input required value={lastName} onChange={(e) => setLastName(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-semibold">
         Date of birth
-        <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+        <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-semibold">
         Admit date
-        <input type="date" value={admitDate} onChange={(e) => setAdmitDate(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+        <input type="date" value={admitDate} onChange={(e) => setAdmitDate(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-semibold">
         Date of original care plan
-        <input type="date" value={planDate} onChange={(e) => setPlanDate(e.target.value)} placeholder={admitDate} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+        <input type="date" value={planDate} onChange={(e) => setPlanDate(e.target.value)} placeholder={admitDate} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
         <span className="text-xs text-muted font-normal">Starts the 14-day review clock. Defaults to the admit date.</span>
       </label>
       {error && <p className="text-sm text-red-700">{error}</p>}
-      <button disabled={busy} className="mt-2 h-13 py-3.5 rounded-xl bg-navy text-white font-semibold text-base disabled:opacity-60">
+      <button disabled={busy} className="mt-2 h-13 py-3.5 rounded-xl bg-navy text-white font-semibold text-base shadow-[var(--shadow-soft)] hover:bg-navy-dark disabled:opacity-60 disabled:hover:bg-navy">
         {busy ? "Adding…" : "Add resident"}
       </button>
       <p className="text-xs text-muted">The NCP template loads automatically — every section starts blank, ready to fill in by voice or by hand.</p>

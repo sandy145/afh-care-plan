@@ -73,14 +73,14 @@ export default function LoginPage() {
   if (awaitingConfirmation) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center px-7 gap-5 text-center">
-        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full bg-blue-100 shadow-[var(--shadow-soft)] flex items-center justify-center">
           <svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1f3a5f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="4" width="20" height="16" rx="2" />
             <path d="m2 7 10 6 10-6" />
           </svg>
         </div>
         <div>
-          <h1 className="text-xl font-bold">Check your email</h1>
+          <h1 className="text-xl font-bold tracking-tight">Check your email</h1>
           <p className="text-muted text-sm mt-2 max-w-xs">
             We sent a confirmation link to <strong>{email}</strong>. Tap it and you&apos;ll be signed in automatically — no need to come back here.
           </p>
@@ -100,13 +100,13 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex flex-col px-7 pt-16 pb-10 max-w-md mx-auto gap-8">
       <div>
-        <div className="w-12 h-12 rounded-xl bg-navy flex items-center justify-center">
+        <div className="w-12 h-12 rounded-xl bg-navy shadow-[var(--shadow-soft)] flex items-center justify-center">
           <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 21V8l8-5 8 5v13" />
             <path d="M9 21v-6h6v6" />
           </svg>
         </div>
-        <h1 className="mt-4 text-2xl font-bold">Care Plan</h1>
+        <h1 className="mt-4 text-2xl font-bold tracking-tight">Care Plan</h1>
         <p className="text-muted text-sm mt-1">Adult Family Home — Negotiated Care Plan</p>
       </div>
 
@@ -117,22 +117,22 @@ export default function LoginPage() {
           <>
             <label className="flex flex-col gap-1.5 text-sm font-semibold">
               Full name
-              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
             </label>
             <label className="flex flex-col gap-1.5 text-sm font-semibold">
               Adult Family Home name
-              <input required value={homeName} onChange={(e) => setHomeName(e.target.value)} placeholder="e.g. Maple Grove AFH" className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+              <input required value={homeName} onChange={(e) => setHomeName(e.target.value)} placeholder="e.g. Maple Grove AFH" className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
               <span className="text-xs text-muted font-normal">Creating an account here registers a new home and makes you its admin. If a caregiver or admin invited you to an existing home, use the link in that invite email instead.</span>
             </label>
           </>
         )}
         <label className="flex flex-col gap-1.5 text-sm font-semibold">
           Email
-          <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+          <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
         </label>
         <label className="flex flex-col gap-1.5 text-sm font-semibold">
           Password
-          <input type="password" required minLength={6} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+          <input type="password" required minLength={6} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
         </label>
         {mode === "signin" && (
           <button type="button" onClick={forgotPassword} className="text-sm text-navy font-semibold self-start -mt-2">
@@ -141,7 +141,7 @@ export default function LoginPage() {
         )}
         {info && <p className="text-sm text-green-800">{info}</p>}
         {error && <p className="text-sm text-red-700">{error}</p>}
-        <button disabled={busy} className="mt-2 h-13 rounded-xl bg-navy text-white font-semibold text-base disabled:opacity-60 py-3.5">
+        <button disabled={busy} className="mt-2 h-13 rounded-xl bg-navy text-white font-semibold text-base shadow-[var(--shadow-soft)] hover:bg-navy-dark disabled:opacity-60 disabled:hover:bg-navy py-3.5">
           {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
         </button>
       </form>

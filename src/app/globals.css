@@ -7,12 +7,35 @@
   --color-muted: #5b626e;
   --color-line: #e3e6eb;
   --color-paper: #f5f6f8;
+  --shadow-soft: 0 1px 2px rgba(28, 31, 36, 0.04), 0 1px 8px rgba(28, 31, 36, 0.04);
+  --shadow-soft-lg: 0 2px 4px rgba(28, 31, 36, 0.04), 0 8px 24px rgba(28, 31, 36, 0.06);
 }
 
 body {
   background: var(--color-paper);
   color: var(--color-ink);
   font-family: Inter, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* A refined, visible focus ring instead of the browser default — keyboard navigation
+   stays clear without the harsh blue outline. */
+:focus-visible {
+  outline: 2px solid var(--color-navy);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Subtle, consistent tactile feedback on every button and link — the kind of small
+   polish (gentle press, no jarring instant color snaps) that makes an interface feel
+   considered rather than purely functional. */
+button,
+a {
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, opacity 150ms ease, box-shadow 150ms ease, transform 100ms ease;
+}
+button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 @media print {
