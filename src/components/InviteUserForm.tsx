@@ -27,7 +27,7 @@ export default function InviteUserForm() {
   }
 
   return (
-    <form onSubmit={submit} className="bg-white border border-line rounded-2xl p-3.5 flex flex-col gap-3">
+    <form onSubmit={submit} className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] p-3.5 flex flex-col gap-3">
       <div className="text-sm font-semibold">Invite someone by email</div>
       <div className="flex gap-2">
         <input type="email" required placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="flex-1 h-11 px-3 rounded-lg border border-gray-300 text-sm" />

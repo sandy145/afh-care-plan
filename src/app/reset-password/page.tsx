@@ -62,10 +62,10 @@ export default function ResetPasswordPage() {
         <form onSubmit={submit} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5 text-sm font-semibold">
             New password
-            <input type="password" required minLength={6} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 bg-white font-normal text-base" />
+            <input type="password" required minLength={6} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 px-3.5 rounded-xl border border-gray-300 hover:border-gray-400 focus:border-navy bg-white font-normal text-base" />
           </label>
           {error && <p className="text-sm text-red-700">{error}</p>}
-          <button disabled={busy} className="mt-2 h-13 py-3.5 rounded-xl bg-navy text-white font-semibold text-base disabled:opacity-60">
+          <button disabled={busy} className="mt-2 h-13 py-3.5 rounded-xl bg-navy text-white font-semibold text-base shadow-[var(--shadow-soft)] hover:bg-navy-dark disabled:opacity-60 disabled:hover:bg-navy">
             {busy ? "…" : "Set password and continue"}
           </button>
         </form>

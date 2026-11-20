@@ -21,7 +21,7 @@ export default function CompleteReview({ residentId, reviewerName, residentName,
 
   return (
     <>
-      <div className="bg-white border border-line rounded-2xl p-3.5 flex flex-col gap-2.5">
+      <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] p-3.5 flex flex-col gap-2.5">
         <label className="flex gap-2.5 items-start text-sm cursor-pointer">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="w-5 h-5 mt-0.5" />
           <span>

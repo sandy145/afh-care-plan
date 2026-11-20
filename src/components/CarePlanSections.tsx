@@ -144,7 +144,7 @@ export default function CarePlanSections({ residentId, values, log, initialSecti
       <section className="flex-1 min-w-0 p-5 flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">Care plan / {titleCase(section.title)}</div>
-          <h2 className="text-2xl font-bold leading-tight">{titleCase(section.title)}</h2>
+          <h2 className="text-2xl font-bold tracking-tight leading-tight">{titleCase(section.title)}</h2>
           {SECTION_DESCRIPTIONS[section.id] && <p className="text-sm text-muted max-w-prose">{SECTION_DESCRIPTIONS[section.id]}</p>}
           <span className="inline-flex self-start items-center text-xs font-medium text-muted bg-gray-100 px-2.5 py-1 rounded-full mt-1">
             {lastChange ? `Updated ${fmtDate(lastChange.created_at)}` : "No changes recorded yet"}
@@ -187,7 +187,7 @@ export default function CarePlanSections({ residentId, values, log, initialSecti
           </div>
         )}
         {editing && (
-          <div className="no-print bg-white border border-line rounded-2xl p-3.5 flex flex-col gap-3">
+          <div className="no-print bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] p-3.5 flex flex-col gap-3">
             <label className="text-sm font-semibold flex flex-col gap-1">
               Reason for change (shows on the printed plan)
               <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. hospice transfer, fall on 10/11" className="h-11 px-3 rounded-lg border border-gray-300 font-normal" />
@@ -208,7 +208,7 @@ export default function CarePlanSections({ residentId, values, log, initialSecti
         {!editing ? (
           <>
             {(assistField || caregiverField) && (
-              <div className="bg-white border border-line rounded-2xl p-4 flex flex-col gap-4">
+              <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] p-4 flex flex-col gap-4">
                 {assistField && (
                   <div>
                     <div className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-1.5">Level of assistance</div>
@@ -287,7 +287,7 @@ function Column({
   const allEmpty = !editing && !hasAssistField && visibleFields.every((f) => !values[f.id]?.value);
 
   return (
-    <div className="bg-white border border-line rounded-2xl p-3.5 flex flex-col gap-3">
+    <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] p-3.5 flex flex-col gap-3">
       <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">{title}</div>
       {allEmpty ? (
         <p className="text-sm text-gray-400 italic py-1">Nothing recorded yet.</p>
@@ -342,7 +342,7 @@ function Column({
 
 function StatCard({ label, value, sub, valueClassName }: { label: string; value: React.ReactNode; sub?: string; valueClassName?: string }) {
   return (
-    <div className="bg-white border border-line rounded-2xl p-3.5 flex flex-col gap-1">
+    <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] p-3.5 flex flex-col gap-1">
       <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">{label}</div>
       <div className={`text-xl font-bold ${valueClassName ?? ""}`}>{value}</div>
       {sub && <div className="text-xs text-muted">{sub}</div>}

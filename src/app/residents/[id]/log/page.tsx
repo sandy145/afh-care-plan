@@ -33,7 +33,7 @@ export default async function LogPage({ params }: { params: Promise<{ id: string
             ))}
           </div>
         )}
-        <div className="bg-white border border-line rounded-2xl divide-y divide-gray-100">
+        <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] divide-y divide-gray-100">
           {((log ?? []) as ChangeLogRow[]).map((c) => (
             <div key={c.id} className="p-3 text-sm flex flex-col gap-0.5">
               <div className="flex justify-between text-xs">

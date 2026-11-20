@@ -35,7 +35,7 @@ export default async function HomeUsersPage() {
 
         <div className="flex flex-col gap-1.5">
           <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">Members</div>
-          <div className="bg-white border border-line rounded-2xl divide-y divide-gray-100">
+          <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] divide-y divide-gray-100">
             {(memberships ?? []).map((m) => (
               <div key={m.id} className="p-3 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
@@ -54,7 +54,7 @@ export default async function HomeUsersPage() {
         {pendingInvites.length > 0 && (
           <div className="flex flex-col gap-1.5">
             <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">Pending invites</div>
-            <div className="bg-white border border-line rounded-2xl divide-y divide-gray-100">
+            <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] divide-y divide-gray-100">
               {pendingInvites.map((i) => (
                 <div key={i.id} className="p-3 flex items-center gap-3">
                   <div className="flex-1 min-w-0">
@@ -73,7 +73,7 @@ export default async function HomeUsersPage() {
         {pastInvites.length > 0 && (
           <div className="flex flex-col gap-1.5">
             <div className="text-[11px] font-semibold text-muted uppercase tracking-wide">Invite history</div>
-            <div className="bg-white border border-line rounded-2xl divide-y divide-gray-100 text-sm">
+            <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] divide-y divide-gray-100 text-sm">
               {pastInvites.map((i) => (
                 <div key={i.id} className="p-3 flex items-center justify-between text-muted">
                   <span>{i.email}</span>

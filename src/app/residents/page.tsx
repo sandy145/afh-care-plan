@@ -50,7 +50,7 @@ export default async function ResidentsPage() {
       <ul className="p-5 flex flex-col gap-2.5">
         {rows.map(({ r, status, last }) => (
           <li key={r.id}>
-            <Link href={`/residents/${r.id}`} className="bg-white border border-line rounded-2xl p-3.5 flex items-center gap-3">
+            <Link href={`/residents/${r.id}`} className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-soft-lg)] hover:border-gray-300 p-3.5 flex items-center gap-3">
               <div className="w-11 h-11 rounded-full bg-blue-100 text-navy font-bold flex items-center justify-center">
                 {r.first_name[0]}
                 {r.last_name[0]}

@@ -36,7 +36,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ id: str
         </div>
 
         <div className="text-sm font-semibold">What changed</div>
-        <div className="bg-white border border-line rounded-2xl divide-y divide-gray-100">
+        <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] divide-y divide-gray-100">
           {changes.length === 0 && <div className="p-3 text-sm text-muted">No changes since the last review.</div>}
           {changes.map((c) => (
             <div key={c.id} className="p-3 flex flex-col gap-1">

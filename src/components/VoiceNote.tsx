@@ -104,7 +104,7 @@ export default function VoiceNote({ residentId, sectionHint, authorName }: { res
     <div className="flex-1 flex flex-col p-5 gap-4 pb-28">
       {changes.length === 0 && !noteId && (
         <>
-          <div className="bg-white border border-line rounded-2xl p-4 flex flex-col gap-3">
+          <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] p-4 flex flex-col gap-3">
             {!supported && <p className="text-sm text-red-700">This browser does not support speech recognition. Use Chrome or Safari, or type the note below.</p>}
             <button type="button" onClick={toggle} disabled={!supported} className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center shadow-lg ${recording ? "bg-red-600 animate-pulse" : "bg-navy"} disabled:opacity-40`} aria-label={recording ? "Stop recording" : "Start recording"}>
               {recording ? <span className="w-7 h-7 bg-white rounded-sm" /> : <MicIcon />}
@@ -121,7 +121,7 @@ export default function VoiceNote({ residentId, sectionHint, authorName }: { res
 
       {noteId && (
         <>
-          <div className="bg-white border border-line rounded-2xl p-4 text-sm italic text-muted">“{transcript}”</div>
+          <div className="bg-white border border-line rounded-2xl shadow-[var(--shadow-soft)] p-4 text-sm italic text-muted">“{transcript}”</div>
           {warning && <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">{warning}</p>}
           {dailyNote && (
             <p className="text-xs text-muted">
